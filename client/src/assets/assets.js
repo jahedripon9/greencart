@@ -204,10 +204,10 @@ export const dummyProducts = [
   // Vegetables
   {
     _id: "gd46g23h",
-    name: "Potato 500g",
+    name: " আলু ৫০০ গ্রাম ",
     category: "Vegetables",
-    price: 25,
-    offerPrice: 20,
+    price: "২৫",
+    offerPrice: "২০",
     image: [potato_image_1, potato_image_2, potato_image_3, potato_image_4],
     description: [
       "Fresh and organic",
