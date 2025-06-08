@@ -206,8 +206,8 @@ export const dummyProducts = [
     _id: "gd46g23h",
     name: " আলু ৫০০ গ্রাম ",
     category: "Vegetables",
-    price: "২৫",
-    offerPrice: "২০",
+    price: "25",
+    offerPrice: "20",
     image: [potato_image_1, potato_image_2, potato_image_3, potato_image_4],
     description: [
       "Fresh and organic",
