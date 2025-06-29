@@ -1,5 +1,6 @@
-import e from "express";
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // Register User: /api/user/register 
 export const register = async (req, res) => {
@@ -14,8 +15,23 @@ export const register = async (req, res) => {
             return res.json({ success: false, message: "User already exists" });
         }
 
-        
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await User.create({ name, email, password: hashedPassword });
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        res.cookie("token", token, {
+            httpOnly: true, // Prevents JavaScript access to the cookie
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust sameSite policy based on environment
+            maxAge: 7 * 24 * 60 * 60 * 1000 // Cookie expiration time (7 days)
+        });
+
+        return res.json({ success: true, user: { email: user.email, name: user.name } })
+
     } catch (error) {
         console.error(error.message);
+        res.json({ success: false, message: error.message });
     }
 };
