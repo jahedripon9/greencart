@@ -70,3 +70,30 @@ export const login = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
+
+// Check Auth : /api/user/is-auth
+export const isAuth = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await User.findById(userId).select("-password")
+        return res.json({ success: true, user });
+    } catch (error) {
+        console.error(error.message);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Logout User: /api/user/logout
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true, // Prevents JavaScript access to the cookie
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust sameSite policy based on environment
+        });
+        return res.json({ success: true, message: "User logged out successfully" });
+    } catch (error) {
+        console.error(error.message);
+        res.json({ success: false, message: error.message });
+    }
+};
