@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { connect } from 'mongoose';
 
 const connectCloudinary = async () => {
     cloudinary.config({

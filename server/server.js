@@ -29,9 +29,9 @@ app.get('/', (req, res) => res.send("API is Working"));
 app.use('/api/user', userRouter);
 app.use('/api/seller', sellerRouter);
 app.use('/api/product', productRouter)
-app.use('/apo/cart', cartRouter)
-app.use('/apo/address', addressRouter)
-app.use('/apo/order', orderRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/address', addressRouter)
+app.use('/api/order', orderRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
