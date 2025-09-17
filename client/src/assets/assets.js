@@ -204,7 +204,7 @@ export const dummyProducts = [
   // Vegetables
   {
     _id: "gd46g23h",
-    name: " আলু ৫০০ গ্রাম ",
+    name: "আলু ৫০০ গ্রাম",
     category: "Vegetables",
     price: "25",
     offerPrice: "20",
@@ -237,7 +237,7 @@ export const dummyProducts = [
   },
   {
     _id: "gd48g45h",
-    name: "Carrot 500g",
+    name: "Carrot 500gm",
     category: "Vegetables",
     price: 30,
     offerPrice: 28,
