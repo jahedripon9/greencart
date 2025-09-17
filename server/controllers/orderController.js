@@ -20,7 +20,7 @@ export const placeOrderCOD = async (req, res) => {
         amount += Math.floor(amount * 0.02);
 
         await Order.create({
-            userid,
+            userId,
             items,
             amount,
             address,

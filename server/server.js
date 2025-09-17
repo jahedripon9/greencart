@@ -18,7 +18,7 @@ await connectDB();
 await connectCloudinary();
 
 //Allow multiple origin
-const allowedOrigins = ["http://localhost:5173"]
+const allowedOrigins = ["http://localhost:5173"];
 
 // Middleware to parse JSON requests
 app.use(express.json());
