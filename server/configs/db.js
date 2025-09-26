@@ -6,6 +6,7 @@ const connectDB = async () => {
             console.log("Database connected successfully")
         );
         await mongoose.connect(`${process.env.MONGODB_URI}/greencart`)
+
     } catch (error) {
         console.error(error.message);
     }
