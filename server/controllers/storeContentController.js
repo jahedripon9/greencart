@@ -6,7 +6,11 @@ import { logActivity } from "../services/activityLogService.js";
  * Helper to check if model method is safe to run without timeout
  */
 const isModelRunnable = (model, method = 'findOne') => {
-    return Boolean(model && typeof model[method] === 'function');
+    return Boolean(
+        mongoose.connection.readyState === 1 &&
+        model &&
+        typeof model[method] === 'function'
+    );
 };
 
 // =============================================================================
