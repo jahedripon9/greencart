@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/__clerk/:match*",
-      "destination": "/api/__clerk?__clerk_path=:match*"
+      "destination": "/api/clerk-proxy?__clerk_path=:match*"
     },
     {
       "source": "/__clerk",
-      "destination": "/api/__clerk"
+      "destination": "/api/clerk-proxy"
     },
     {
       "source": "/((?!api/|__clerk).*)",

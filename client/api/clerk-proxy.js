@@ -10,7 +10,6 @@
  */
 
 export default async function handler(req, res) {
-  // CORS / Preflight handling if needed
   const host = req.headers['x-forwarded-host'] || req.headers.host || 'greencart-three-chi.vercel.app';
   const proto = req.headers['x-forwarded-proto'] || 'https';
   const proxyUrl = process.env.CLERK_PROXY_URL || `${proto}://${host}/__clerk`;
@@ -35,7 +34,7 @@ export default async function handler(req, res) {
       subpath = req.headers['x-matched-path'].replace(/^\/__clerk\/?/, '');
     } else if (req.url) {
       const parsed = new URL(req.url, 'http://localhost');
-      subpath = parsed.searchParams.get('__clerk_path') || parsed.pathname.replace(/^\/api\/__clerk\/?/, '');
+      subpath = parsed.searchParams.get('__clerk_path') || parsed.pathname.replace(/^\/api\/clerk-proxy\/?/, '');
     }
 
     if (!subpath.startsWith('/')) {
@@ -118,7 +117,7 @@ export default async function handler(req, res) {
     clerkResponse.headers.forEach((val, key) => {
       const lowerKey = key.toLowerCase();
       if (hopByHopHeaders.has(lowerKey)) return;
-      if (lowerKey === 'set-cookie') return; // Set-Cookie handled separately for multi-cookie support
+      if (lowerKey === 'set-cookie') return;
       res.setHeader(key, val);
     });
 
