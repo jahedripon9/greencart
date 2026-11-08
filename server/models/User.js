@@ -12,7 +12,20 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: function () {
+            return !this.clerkId;
+        },
+    },
+    clerkId: {
+        type: String,
+        sparse: true,
+        unique: true,
+        index: true,
+    },
+    authProvider: {
+        type: [String],
+        enum: ['email', 'google'],
+        default: ['email'],
     },
     cartItems: {
         type: Object,

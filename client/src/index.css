@@ -14,3 +14,79 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Breaking News Ticker Right-to-Left Continuous Animation */
+@keyframes tickerRTL {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-rtl {
+  animation: tickerRTL 25s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-ticker-rtl:hover,
+.animate-ticker-rtl:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker-rtl {
+    animation: none !important;
+  }
+}
+
+/* Distinct Smooth Floating Animations for Hero Banner Objects */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+@keyframes floatMedium {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-2deg);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 4.5s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: floatMedium 5.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-gentle,
+  .animate-float-slow,
+  .animate-float-medium {
+    animation: none !important;
+    transform: none !important;
+  }
+}

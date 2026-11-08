@@ -3,9 +3,12 @@ import { NavLink } from 'react-router-dom'
 import { assets } from "../assets/assets.js"
 import { useAppContext } from '../context/AppContext.jsx'
 import toast from 'react-hot-toast'
+import { useAuth } from '@clerk/clerk-react'
+import CouponTicker from './CouponTicker.jsx'
 
 const Navbar = () => {
     const [open, setOpen] = useState(false)
+    const { signOut: clerkSignOut, isSignedIn: isClerkSignedIn } = useAuth();
     const { user, setUser, setShowUserLogin, navigate, searchQuery, setSearchQuery, getCartCount, axios } = useAppContext();
 
     const logout = async () => {
@@ -14,6 +17,13 @@ const Navbar = () => {
             if (data.success) {
                 toast.success(data.message);
                 setUser(null);
+                if (isClerkSignedIn && typeof clerkSignOut === 'function') {
+                    try {
+                        await clerkSignOut();
+                    } catch {
+                        // ignore clerk signout errors
+                    }
+                }
                 navigate('/');
             } else {
                 toast.error(data.message);
@@ -29,9 +39,10 @@ const Navbar = () => {
             navigate("/products");
 
         }
-    }, [searchQuery])
+    }, [searchQuery, navigate])
 
     return (
+        <>
         <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
 
             <NavLink to="/" onClick={() => setOpen(false)} >
@@ -64,6 +75,7 @@ const Navbar = () => {
                             <img className='w-10' src={assets.profile_icon} alt="profile" />
                             <ul className='hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 pt-2.5 w-30 rounded-md text-sm z-40'>
                                 <li onClick={() => navigate("my-orders")} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>My Order</li>
+                                <li onClick={() => navigate("messages")} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>Messages</li>
                                 <li onClick={logout} className='p-1.5 pl-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                             </ul>
                         </div>
@@ -88,9 +100,12 @@ const Navbar = () => {
                     <NavLink to="/products" onClick={() => setOpen(false)} className="block">All Product</NavLink>
                     {user &&
 
-                        <NavLink to="/myorder" onClick={() => setOpen(false)} className="block">My order</NavLink>
+                        <>
+                            <NavLink to="/my-orders" onClick={() => setOpen(false)} className="block">My order</NavLink>
+                            <NavLink to="/messages" onClick={() => setOpen(false)} className="block">Messages</NavLink>
+                        </>
                     }
-                    <NavLink to="/" onClick={() => setOpen(false)} className="block">Contact</NavLink>
+                    <NavLink to="/contact" onClick={() => setOpen(false)} className="block">Contact</NavLink>
                     {
                         !user ? (
                             <button onClick={() => {
@@ -110,6 +125,8 @@ const Navbar = () => {
             )}
 
         </nav>
+        <CouponTicker />
+        </>
     )
 }
 

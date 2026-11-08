@@ -1,3 +1,8 @@
 node_modules
 
 *.env
+.env*
+.chrome_test_profile
+dist
+dist-ssr
+*.log
