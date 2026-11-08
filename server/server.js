@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,7 +47,24 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
-app.get('/', (req, res) => res.send("API is Working"));
+// Serverless DB connection middleware
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+    } catch (e) {
+        console.error("DB connection error in middleware:", e.message);
+    }
+    next();
+});
+
+app.get('/', (req, res) => {
+    res.json({
+        message: "API is Working",
+        dbConnected: mongoose.connection.readyState === 1,
+        hasMongoUri: Boolean(process.env.MONGODB_URI)
+    });
+});
+
 app.use('/api/user', userRouter);
 app.use('/api/seller', sellerRouter);
 app.use('/api/product', productRouter);
