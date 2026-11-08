@@ -1,10 +1,18 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config();
+
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import { cleanupTempFiles } from './configs/multer.js';
 import connectDB from './configs/db.js';
-import 'dotenv/config';
 import userRouter from './routes/userRoute.js';
 import sellerRouter from './routes/sellerRoute.js';
 import connectCloudinary from './configs/cloudinary.js';
@@ -41,10 +49,10 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.get('/', (req, res) => res.send("API is Working"));
 app.use('/api/user', userRouter);
 app.use('/api/seller', sellerRouter);
-app.use('/api/product', productRouter)
-app.use('/api/cart', cartRouter)
-app.use('/api/address', addressRouter)
-app.use('/api/order', orderRouter)
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/address', addressRouter);
+app.use('/api/order', orderRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/review', reviewRouter);
 app.use('/api/notification', notificationRouter);
@@ -98,8 +106,12 @@ app.use(async (err, req, res, next) => {
     return res.status(status).json({ success: false, message });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    // Automatically schedule background scanner for pending orders in production
-    startPendingOrderScheduler();
-})
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+        // Automatically schedule background scanner for pending orders in production
+        startPendingOrderScheduler();
+    });
+}
+
+export default app;
