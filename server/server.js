@@ -4,7 +4,7 @@ import cors from 'cors';
 import multer from 'multer';
 import { cleanupTempFiles } from './configs/multer.js';
 import connectDB from './configs/db.js';
-import 'dotenv/config'
+import 'dotenv/config';
 import userRouter from './routes/userRoute.js';
 import sellerRouter from './routes/sellerRoute.js';
 import connectCloudinary from './configs/cloudinary.js';
