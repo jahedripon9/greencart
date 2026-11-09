@@ -7,6 +7,7 @@
  * - Clerk-Secret-Key header (server-side only, never exposed to client)
  * - X-Forwarded-For (client IP)
  * - Multi-cookie forwarding via Set-Cookie array
+ * - Safe compression handling (identity encoding + strips stale content-encoding)
  */
 
 export default async function handler(req, res) {
@@ -37,6 +38,12 @@ export default async function handler(req, res) {
       subpath = parsed.searchParams.get('__clerk_path') || parsed.pathname.replace(/^\/api\/clerk-proxy\/?/, '');
     }
 
+    // Strip any query string from subpath if present to prevent parameter duplication
+    const queryIndex = subpath.indexOf('?');
+    if (queryIndex !== -1) {
+      subpath = subpath.slice(0, queryIndex);
+    }
+
     if (!subpath.startsWith('/')) {
       subpath = '/' + subpath;
     }
@@ -56,7 +63,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // 3. Extract and sanitize client IP
+    // 3. Extract and sanitize client IP (trusted Vercel header)
     const rawForwardedFor = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
     const clientIp = typeof rawForwardedFor === 'string'
       ? rawForwardedFor.split(',')[0].trim()
@@ -81,6 +88,9 @@ export default async function handler(req, res) {
       if (hopByHopHeaders.has(key.toLowerCase())) continue;
       forwardHeaders[key] = value;
     }
+
+    // Request uncompressed upstream content to prevent decoding mismatches
+    forwardHeaders['accept-encoding'] = 'identity';
 
     // Inject mandatory Clerk proxy headers
     forwardHeaders['Clerk-Proxy-Url'] = proxyUrl;
@@ -113,15 +123,29 @@ export default async function handler(req, res) {
     // 7. Set response status code
     res.status(clerkResponse.status);
 
-    // 8. Forward response headers
+    // 8. Forward response headers safely
+    // Exclude hop-by-hop and encoding headers so the browser doesn't attempt to decompress unencoded bytes
+    const excludedResponseHeaders = new Set([
+      'connection',
+      'content-encoding',
+      'content-length',
+      'keep-alive',
+      'proxy-authenticate',
+      'proxy-authorization',
+      'te',
+      'trailer',
+      'transfer-encoding',
+      'upgrade',
+      'set-cookie'
+    ]);
+
     clerkResponse.headers.forEach((val, key) => {
       const lowerKey = key.toLowerCase();
-      if (hopByHopHeaders.has(lowerKey)) return;
-      if (lowerKey === 'set-cookie') return;
+      if (excludedResponseHeaders.has(lowerKey)) return;
       res.setHeader(key, val);
     });
 
-    // 9. Forward all Set-Cookie headers correctly
+    // 9. Forward all Set-Cookie headers correctly (supports multiple cookies)
     const setCookies = typeof clerkResponse.headers.getSetCookie === 'function'
       ? clerkResponse.headers.getSetCookie()
       : clerkResponse.headers.get('set-cookie');
@@ -130,7 +154,7 @@ export default async function handler(req, res) {
       res.setHeader('Set-Cookie', setCookies);
     }
 
-    // 10. Stream / send response body
+    // 10. Stream / send response body as raw Buffer (binary-safe)
     const arrayBuffer = await clerkResponse.arrayBuffer();
     return res.send(Buffer.from(arrayBuffer));
   } catch (error) {
