@@ -51,10 +51,11 @@ export default async function handler(req, res) {
     // 2. Construct destination target URL
     const targetUrl = new URL(`https://frontend-api.clerk.dev${subpath}`);
 
-    // Append all original query parameters (excluding the internal routing helper)
+    // Append all original query parameters (excluding internal routing helpers)
+    const ignoredQueryParams = new Set(['__clerk_path', 'match', 'path']);
     if (req.query) {
       for (const [key, value] of Object.entries(req.query)) {
-        if (key === '__clerk_path') continue;
+        if (ignoredQueryParams.has(key.toLowerCase())) continue;
         if (Array.isArray(value)) {
           value.forEach(v => targetUrl.searchParams.append(key, v));
         } else if (value !== undefined && value !== null) {
@@ -108,7 +109,20 @@ export default async function handler(req, res) {
       if (typeof req.body === 'string' || Buffer.isBuffer(req.body)) {
         body = req.body;
       } else if (req.body && typeof req.body === 'object') {
-        body = JSON.stringify(req.body);
+        const contentType = (req.headers['content-type'] || '').toLowerCase();
+        if (contentType.includes('application/x-www-form-urlencoded')) {
+          const formParams = new URLSearchParams();
+          for (const [key, val] of Object.entries(req.body)) {
+            if (Array.isArray(val)) {
+              val.forEach(v => formParams.append(key, v));
+            } else if (val !== undefined && val !== null) {
+              formParams.append(key, String(val));
+            }
+          }
+          body = formParams.toString();
+        } else {
+          body = JSON.stringify(req.body);
+        }
       }
     }
 
